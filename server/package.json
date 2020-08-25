@@ -1,0 +1,14 @@
+{
+    "name": "querytester",
+    "description": "Run Local PostgreSQL queries",
+    "dependencies": {
+        "body-parser": "^1.19.0",
+        "cors": "^2.8.5",
+        "express": "^4.17.1",
+        "nodemon": "^2.0.4",
+        "pg-promise": "^10.6.0"
+    },
+    "scripts": {
+        "nodemon": "nodemon src/server.js --legacy-watch -watch src"
+    }
+}
