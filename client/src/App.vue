@@ -1,8 +1,22 @@
 <template>
 
 
+   
 
     <div id="app">
+
+        <div id="disclaimer" v-show="popup" @click.self="removePopup">
+            <div id="content">
+                <h1>Welcome!</h1>
+                <p>
+                    Thank you for visiting, this is a project designed to run PostgreSQL queries. This does save to a database anyone can run queries on so don't leave any personal data. Enjoy! 
+                </p>
+                <span>
+                    <button @click="removePopup">Okay</button>
+                </span>
+            </div>
+            
+        </div>
 
         <div id="left">
 
@@ -88,6 +102,8 @@ export default {
     name: 'App',
     data: function () { 
         return { 
+            popup: true,
+
             text: '',
             response: '',
             resultsTable: [{}],
@@ -106,6 +122,10 @@ export default {
     },
     methods: {
          
+        removePopup() { 
+            this.popup=false;
+        },
+
         savePositions() { 
             const target = document.getElementById('top');
             window.localStorage.setItem("height", target.style.height);
@@ -195,7 +215,49 @@ export default {
         max-width: 100vw;
 
         font-family: "Poppins","Roboto","Noto",sans-serif;
+        
     }
+
+    #disclaimer {
+        position: absolute;
+        background-color: rgb(255,255,255,0.2);
+        height: 100vh;
+        width: 100vw;
+        z-index: 1;
+    }
+
+    #content { 
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 500px;
+        margin-left: -250px;
+        height: 300px;
+        margin-top: -150px;
+        background-color: #202124;
+        border: 1px solid black;
+        border-radius: 20px;
+        color: white;
+        padding: 40px;
+        z-index: 2;
+    }
+    #content p { 
+        text-align: justify;
+    }
+    #content span { 
+        margin: auto;
+        
+        margin-top: 20px;
+        width: 100%;
+        height: 50px;
+        display: inline-block;
+    }
+
+    #disclaimer h1 { 
+        text-align: center;
+        font-size: 48px;
+    }
+
 
     #top { 
 
