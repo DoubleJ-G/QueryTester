@@ -34,7 +34,7 @@
                            <div class="li" v-for="query in queryHistory" :key="query.id">
                                 <span class="query">{{query.display}}</span>
                                 <span class="button">
-                                    <button>Copy</button>
+                                    <button @click="text=query.text">Copy</button>
                                 </span>
                                 <span class="button">
                                     <button @click="runQuery(query.text)">Run</button>
