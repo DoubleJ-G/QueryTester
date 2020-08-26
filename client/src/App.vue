@@ -12,13 +12,13 @@
                 <!--Query Box--> 
                 <div id="query">
                     <h1>Query</h1>
-                    <textarea></textarea>
+                    <textarea v-model="text"></textarea>
                     <div id="stats">
                         <span id="text">
-                            Response: 
+                            Response: {{response}} 
                         </span>
-                        <span id="button">
-                            <button>Run Query</button>
+                        <span class="button">
+                            <button @click="runQuery(text)">Run Query</button>
                         </span>
                         
                         
@@ -30,6 +30,22 @@
                 <!--History Box--> 
                 <div id="history">
                     <h1>History</h1>
+                    <div id="queryHistory">
+                           <div class="li" v-for="query in queryHistory" :key="query.id">
+                                <span class="query">{{query.display}}</span>
+                                <span class="button">
+                                    <button>Copy</button>
+                                </span>
+                                <span class="button">
+                                    <button @click="runQuery(query.text)">Run</button>
+                                </span>
+                                <span class="button remove">
+                                    <button @click="removeQuery(query.id)">X</button>
+                                </span>
+                                
+                                
+                            </div>
+                    </div>
                 </div>
             </div>
             
@@ -40,6 +56,25 @@
 
         <div id="right">
             <!--Results Box-->
+            <div id="results">
+                <h1>Results</h1>
+
+                <div id="table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th v-for="name in Object.keys(resultsTable[0])" :key="name">{{name}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="row in resultsTable" :key="row">
+                                <td v-for="data in row" :key="data">{{ data }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
         </div>
         
 
@@ -53,7 +88,19 @@ export default {
     name: 'App',
     data: function () { 
         return { 
-          
+            text: '',
+            response: '',
+            resultsTable: [{}],
+            stored: 0,
+            queryHistory: [],
+
+            requestStart: 0, 
+            requestEnd: 0
+        }
+    },
+    computed: { 
+        timeEllapsed() { 
+            return this.requestEnd - this.requestStart;
         }
     },
     methods: {
@@ -68,15 +115,49 @@ export default {
             target.style.height = window.localStorage.getItem("height") || "50vh";
             target.style.width = window.localStorage.getItem("width") || "50vw";
         },
-        sendQuery() { 
+
+        saveQuery(query){ 
+            console.log("Saving to: " + this.stored);
+            this.queryHistory.push({text: query, display: query.substring(0, 50) + " ...", id: this.stored});
+            this.stored = this.stored+1;
+        },
+        removeQuery(id){ 
+            console.log("Deleting: " + id);
+            this.queryHistory = this.queryHistory.filter( query => {
+                return query.id !== id;
+            })
+            
+        },
+        runQuery(query){ 
+            if (query==''){ 
+                return this.response = "Please enter a query.";
+            } 
+            this.response = "Running..."
+            this.requestStart = performance.now();
+            this.response = this.sendQuery(query);
+            this.saveQuery(query);
+        },
+
+        sendQuery(query) { 
             this.queryStartTime = performance.now();
-            axios.post('http://localhost:3000/', {"query": this.query})
+            axios.post('http://localhost:3000/', {"query": query})
                 .then( res =>{ 
-                    this.res = res;
-                    console.log(JSON.stringify(res));
+                    this.requestEnd = performance.now();
+                    // SELECTS will return 0-*
+                    console.log(res);
+                    if (Array.isArray(res.data)) { 
+                        this.response = res.data.length + " Results returned in " + this.timeEllapsed + "ms";
+                        if (res.data.length==0) { 
+                            this.resultsTable = [{}]
+                        } else { 
+                            this.resultsTable = res.data
+                        }
+                        
+                    }
+                    // INSERTS/UPDATES/DELETES RETURN 0 
                 })
                 .catch( error => { 
-                    console.log(error)
+                    this.response = error.response.data || error.response;
                 })
         }
     },
@@ -102,10 +183,10 @@ export default {
         display: flex;  
         
         height: 100vh;
-        width: 100vw; 
+        width: 100vw;
 
-        background-color: #202124;
-        color: white;
+        max-height: 100vh;
+        max-width: 100vw;
 
         font-family: "Poppins","Roboto","Noto",sans-serif;
     }
@@ -117,6 +198,8 @@ export default {
         width: 50vw;
         height: 50vh;
 
+        min-width: 25vw;
+        max-width: 80vw;
 
         resize: both;
         overflow: auto;
@@ -132,12 +215,17 @@ export default {
         border-right: 1px solid black;
     }
 
+    #right { 
+        flex: 1 1 auto;
+    }
+
     #left > div {
         padding: 20px;
      }
 
     #bottom { 
-        flex: 1 1 auto;
+        flex: 1 1 0;
+        overflow: hidden;
     }
     
     #query { 
@@ -149,6 +237,7 @@ export default {
 
     h1 { 
         margin: 20px 0;
+        position: sticky;
     }
     
 
@@ -157,10 +246,10 @@ export default {
         height: 100%;
         padding: 5px;
         resize: none;
-        background-color: rgba(0,0,0,0.2);
+
         border: 1px solid black;
-        color: white;
-        font-size: 1vw;
+
+        font-size: 16px;
     }
 
     #stats { 
@@ -169,7 +258,7 @@ export default {
     }
 
 
-    #stats span { 
+    #stats span, #queryHistory span { 
         display: inline-block;
         
     }
@@ -179,22 +268,92 @@ export default {
         width: 90%;
     }
 
-    #stats #button { 
+    #stats .button { 
         min-width: 100px;
         width: 10%;
     }
 
-    #stats button { 
+    #history { 
+        display: flex;
+        flex-direction: column;
+
+        height: 100%;
+        
+    }
+
+    #queryHistory { 
+        flex: 1 1 0;
+        overflow-y: auto;
+    }
+
+
+    button { 
         
         width: 100%;
         height: 100%;
 
         border: 2px solid white;
-        border-radius: 4px;
-        background-color: #50fa7b;
-        color: black;
+        border-radius: 8px;
+        background-color: #007bff;
+        color: white;
         font-weight: 700;
         font-size: 15px;
 
     }
+
+    button:hover { 
+        background-color: #005aff;
+    }
+
+    div.li { 
+        list-style-type: none;
+        width: 100%;
+        border: 1px solid black;
+    }
+    div.li .button { 
+        height: 40px;
+        width: 10%;
+    }
+    div.li .remove { 
+        width: 5%;
+        
+    }
+    .remove button { 
+        background-color: rgb(240, 64, 44);
+    }
+    .remove button:hover { 
+        background-color: red;
+    }
+    .query { 
+        padding: 10px;
+        width: 75%;
+        max-height: 40px;
+        word-wrap: break-word;
+    }
+
+    #results h1{ 
+        text-align: center;
+    }
+
+    #table { 
+        margin: auto;
+        max-width: 80%;
+        max-height: 90vh;
+        overflow: auto;
+    }
+
+    table { 
+        margin: auto;
+        width: 100%;
+    }
+
+    table, th, td { 
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    th, td { 
+        padding: 10px;
+    }
+
 </style>
