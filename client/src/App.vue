@@ -167,7 +167,7 @@ export default {
     },
     mounted(){ 
         
-        //this.loadPositions();
+        this.loadPositions();
         window.addEventListener('beforeunload', this.savePositions);
 
     }
