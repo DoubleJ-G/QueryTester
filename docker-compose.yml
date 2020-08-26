@@ -32,7 +32,7 @@ services:
     client: 
         build: ./client
         environment: 
-            - URL=localhost:3000
+            - URL=http://3.128.247.33:3000/
         ports: 
             - 80:80
         restart: on-failure

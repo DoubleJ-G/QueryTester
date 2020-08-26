@@ -118,12 +118,12 @@ export default {
         },
 
         saveQuery(query){ 
-            console.log("Saving to: " + this.stored);
+            
             this.queryHistory.push({text: query, display: query.substring(0, 50) + " ...", id: this.stored});
             this.stored = this.stored+1;
         },
         removeQuery(id){ 
-            console.log("Deleting: " + id);
+            
             this.queryHistory = this.queryHistory.filter( query => {
                 return query.id !== id;
             })
@@ -141,8 +141,9 @@ export default {
         },
 
         sendQuery(query) { 
+            console.log(process.env.VUE_APP_SERVER_URL);
             this.queryStartTime = performance.now();
-            axios.post(process.env.URL || 'http://localhost:3000/', {"query": query})
+            axios.post(process.env.VUE_APP_SERVER_URL || 'http://localhost:3000/', {"query": query})
                 .then( res =>{ 
                     this.requestEnd = performance.now();
                     // SELECTS will return 0-*
