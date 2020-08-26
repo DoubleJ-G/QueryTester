@@ -31,8 +31,6 @@ services:
             - postgres
     client: 
         build: ./client
-        environment: 
-            - URL=http://3.128.247.33:3000/
         ports: 
             - 80:80
         restart: on-failure

@@ -141,7 +141,7 @@ export default {
         },
 
         sendQuery(query) { 
-            console.log(process.env.VUE_APP_SERVER_URL);
+
             this.queryStartTime = performance.now();
             axios.post(process.env.VUE_APP_SERVER_URL || 'http://localhost:3000/', {"query": query})
                 .then( res =>{ 
