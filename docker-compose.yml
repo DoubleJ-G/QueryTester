@@ -29,4 +29,15 @@ services:
             - postgres
         links: 
             - postgres
-
+    client: 
+        build: ./client
+        environment: 
+            - URL=localhost:3000
+        ports: 
+            - 80:80
+        restart: on-failure
+        links: 
+            - server
+        depends_on: 
+            - server
+        

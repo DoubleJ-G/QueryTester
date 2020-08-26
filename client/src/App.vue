@@ -14,7 +14,7 @@
                     <h1>Query</h1>
                     <textarea v-model="text"></textarea>
                     <div id="stats">
-                        <span id="text">
+                        <span id="text" :class="{success: success, error: !success}">
                             Response: {{response}} 
                         </span>
                         <span class="button">
@@ -95,7 +95,8 @@ export default {
             queryHistory: [],
 
             requestStart: 0, 
-            requestEnd: 0
+            requestEnd: 0,
+            success: true
         }
     },
     computed: { 
@@ -130,6 +131,7 @@ export default {
         },
         runQuery(query){ 
             if (query==''){ 
+                this.success = false;
                 return this.response = "Please enter a query.";
             } 
             this.response = "Running..."
@@ -140,11 +142,11 @@ export default {
 
         sendQuery(query) { 
             this.queryStartTime = performance.now();
-            axios.post('http://localhost:3000/', {"query": query})
+            axios.post(process.env.URL || 'http://localhost:3000/', {"query": query})
                 .then( res =>{ 
                     this.requestEnd = performance.now();
                     // SELECTS will return 0-*
-                    console.log(res);
+                    this.success = true;
                     if (Array.isArray(res.data)) { 
                         this.response = res.data.length + " Results returned in " + this.timeEllapsed + "ms";
                         if (res.data.length==0) { 
@@ -157,6 +159,7 @@ export default {
                     // INSERTS/UPDATES/DELETES RETURN 0 
                 })
                 .catch( error => { 
+                    this.success = false;
                     this.response = error.response.data || error.response;
                 })
         }
@@ -180,6 +183,8 @@ export default {
 
     #app { 
 
+        background-color: #202124;
+        color: white;
         display: flex;  
         
         height: 100vh;
@@ -242,6 +247,10 @@ export default {
     
 
     #query textarea{ 
+
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+
         display: block;
         height: 100%;
         padding: 5px;
@@ -255,6 +264,8 @@ export default {
     #stats { 
         border: 1px solid black;
         display: flex;
+
+        background-color: rgba(0,0,0,0.2);
     }
 
 
@@ -266,6 +277,14 @@ export default {
     #stats #text { 
         margin: 10px;
         width: 90%;
+    }
+
+    .success { 
+        color: lime;
+    }
+
+    .error { 
+        color: red;
     }
 
     #stats .button { 
@@ -292,7 +311,7 @@ export default {
         width: 100%;
         height: 100%;
 
-        border: 2px solid white;
+        border: 1px solid white;
         border-radius: 8px;
         background-color: #007bff;
         color: white;
@@ -309,6 +328,9 @@ export default {
         list-style-type: none;
         width: 100%;
         border: 1px solid black;
+
+        background-color: rgb(255,255,255,0.1);
+        color: white;
     }
     div.li .button { 
         height: 40px;
@@ -348,12 +370,18 @@ export default {
     }
 
     table, th, td { 
-        border: 1px solid black;
+        border: 1px solid rgb(255,255,255,0.2);
         border-collapse: collapse;
     }
 
     th, td { 
         padding: 10px;
+    }
+
+    th { 
+        background-color: rgba(255,255,255,0.1);
+        text-transform: uppercase;
+        color: lime;
     }
 
 </style>
