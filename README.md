@@ -1,4 +1,4 @@
-# Jaden Gregory's Website
+# PostgreSQL Query Tester Website
 [Link To Site](http://3.128.28.91)
 
 ## Download and Replicate
